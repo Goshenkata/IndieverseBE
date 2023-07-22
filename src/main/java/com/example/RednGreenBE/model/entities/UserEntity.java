@@ -28,6 +28,18 @@ public class UserEntity {
     @Column(nullable = false)
     private String lastName;
     @Column(nullable = false)
-    private BigDecimal cash;
+    private String phoneNumber;
+    @Column(nullable = false)
+    private BigDecimal money;
+    @OneToOne()
+    private AddressDataEntity addressData;
 
+    public BigDecimal getMoney() {
+        return money;
+    }
+
+    public UserEntity setMoney(BigDecimal money) {
+        this.money = money;
+        return this;
+    }
 }

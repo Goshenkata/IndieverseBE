@@ -28,6 +28,19 @@ public class RegistrationDTO implements Serializable {
             message = "Password must be between 6 and 32 characters," +
                     "must contain at least 1 capital letter and 1 digit.")
     private String password;
+
+    @Pattern(regexp = "\\+\\d{12}", message = "Phone number invalid, please use the international standard: +359XXXXXXXXX" )
+    private String phoneNumber;
     @PositiveOrZero
     private BigDecimal money;
+    private AddressDataDTO addressData;
+
+    public BigDecimal getMoney() {
+        return money;
+    }
+
+    public RegistrationDTO setMoney(BigDecimal money) {
+        this.money = money;
+        return this;
+    }
 }
