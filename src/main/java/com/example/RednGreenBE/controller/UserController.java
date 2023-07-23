@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -23,6 +24,7 @@ import java.util.Optional;
 public class UserController {
 
     private final UserService userService;
+    private final PasswordEncoder passwordEncoder;
 
     @PostMapping("/register/check")
     public ResponseEntity<String> checkRegister(@Valid @RequestBody RegistrationDTO registrationDTO, BindingResult bindingResult) {
@@ -38,6 +40,7 @@ public class UserController {
         if (result.isPresent()) {
          return result.get();
         }
+        registrationDTO.setPassword(passwordEncoder.encode(passwordEncoder.encode(registrationDTO.getPassword())));
         userService.registerUser(registrationDTO);
         return ResponseEntity.ok("Valid user data");
     }

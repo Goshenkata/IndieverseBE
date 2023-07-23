@@ -1,7 +1,7 @@
 package com.example.RednGreenBE.service;
 
 import com.example.RednGreenBE.model.dto.RegistrationDTO;
-import com.example.RednGreenBE.model.entities.AddressDataEntity;
+import com.example.RednGreenBE.model.entities.AddressData;
 import com.example.RednGreenBE.model.entities.UserEntity;
 import com.example.RednGreenBE.repositories.AddressDataRepository;
 import com.example.RednGreenBE.repositories.UserRepository;
@@ -28,7 +28,7 @@ public class UserService {
 
     @Transient
     public void registerUser(RegistrationDTO registrationDTO) {
-        AddressDataEntity addressData = modelMapper.map(registrationDTO.getAddressData(), AddressDataEntity.class);
+        AddressData addressData = modelMapper.map(registrationDTO.getAddressData(), AddressData.class);
         UserEntity userEntity = modelMapper.map(registrationDTO, UserEntity.class);
         userEntity.setAddressData(addressData);
 

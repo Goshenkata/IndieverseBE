@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class AddressDataEntity {
+public class AddressData {
     @Column(nullable = false)
     private String country;
     @Column(nullable = false)

@@ -32,7 +32,7 @@ public class UserEntity {
     @Column(nullable = false)
     private BigDecimal money;
     @OneToOne()
-    private AddressDataEntity addressData;
+    private AddressData addressData;
 
     public BigDecimal getMoney() {
         return money;
