@@ -1,6 +1,6 @@
 package com.example.RednGreenBE.service;
 
-import com.example.RednGreenBE.model.dto.RegistrationDTO;
+import com.example.RednGreenBE.model.dto.request.RegistrationDTO;
 import com.example.RednGreenBE.model.entities.AddressData;
 import com.example.RednGreenBE.model.entities.UserEntity;
 import com.example.RednGreenBE.repositories.AddressDataRepository;

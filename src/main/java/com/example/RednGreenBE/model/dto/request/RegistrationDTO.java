@@ -1,4 +1,4 @@
-package com.example.RednGreenBE.model.dto;
+package com.example.RednGreenBE.model.dto.request;
 
 
 import jakarta.validation.constraints.*;
@@ -27,9 +27,11 @@ public class RegistrationDTO implements Serializable {
     @Pattern(regexp = "^(?=.*[A-Z])(?=.*\\d).{6,32}$",
             message = "Password must be between 6 and 32 characters," +
                     "must contain at least 1 capital letter and 1 digit.")
+    @NotNull(message = "Password cannot be null")
     private String password;
 
     @Pattern(regexp = "\\+\\d{12}", message = "Phone number invalid, please use the international standard: +359XXXXXXXXX" )
+    @NotNull(message = "Phone number cannot be null")
     private String phoneNumber;
     @PositiveOrZero
     private BigDecimal money;
