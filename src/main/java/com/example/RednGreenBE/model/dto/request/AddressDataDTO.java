@@ -20,5 +20,5 @@ public class AddressDataDTO {
     private String city;
     @NotNull(message = "City cannot be null")
     @Size(min = 3, max = 100)
-    private String street;
+    private String address;
 }
