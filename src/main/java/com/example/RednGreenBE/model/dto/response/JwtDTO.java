@@ -9,7 +9,6 @@ import java.util.List;
 @NoArgsConstructor
 public class JwtDTO {
     private String token;
-    private String type = "Bearer";
     private String username;
 
     public JwtDTO(String accessToken, String username) {

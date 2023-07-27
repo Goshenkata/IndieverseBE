@@ -15,10 +15,10 @@ public class AddressData {
     @Column(nullable = false)
     private String city;
     @Column(nullable = false)
-    private String street;
+    private String address;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @OneToOne(mappedBy = "addressData")
+    @OneToOne(mappedBy = "address")
     private UserEntity user;
 }

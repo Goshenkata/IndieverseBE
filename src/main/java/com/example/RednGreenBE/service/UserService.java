@@ -6,6 +6,7 @@ import com.example.RednGreenBE.model.entities.UserEntity;
 import com.example.RednGreenBE.repositories.AddressDataRepository;
 import com.example.RednGreenBE.repositories.UserRepository;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +14,7 @@ import java.beans.Transient;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class UserService {
     private final UserRepository userRepository;
     private final AddressDataRepository addressDataRepository;
@@ -30,7 +32,7 @@ public class UserService {
     public void registerUser(RegistrationDTO registrationDTO) {
         AddressData addressData = modelMapper.map(registrationDTO.getAddressData(), AddressData.class);
         UserEntity userEntity = modelMapper.map(registrationDTO, UserEntity.class);
-        userEntity.setAddressData(addressData);
+        userEntity.setAddress(addressData);
 
         addressDataRepository.save(addressData);
         userRepository.save(userEntity);

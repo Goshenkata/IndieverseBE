@@ -3,6 +3,7 @@ package com.example.RednGreenBE.controller;
 import com.example.RednGreenBE.model.dto.request.LoginDTO;
 import com.example.RednGreenBE.model.dto.request.RegistrationDTO;
 import com.example.RednGreenBE.model.dto.response.JwtDTO;
+import com.example.RednGreenBE.model.dto.response.SimpleMessageDTO;
 import com.example.RednGreenBE.service.UserService;
 import com.example.RednGreenBE.util.JwtUtils;
 import jakarta.validation.Valid;
@@ -32,37 +33,40 @@ public class UserController {
     private final AuthenticationManager authenticationManager;
     private final JwtUtils jwtUtils;
 
+    @CrossOrigin(origins = "http://localhost:4200")
     @PostMapping("/register/check")
-    public ResponseEntity<String> checkRegister(@Valid @RequestBody RegistrationDTO registrationDTO, BindingResult bindingResult) {
-        Optional<ResponseEntity<String>> result = checkIfRegisterDTOvalid(registrationDTO, bindingResult);
+    public ResponseEntity<SimpleMessageDTO> checkRegister(@Valid @RequestBody RegistrationDTO registrationDTO, BindingResult bindingResult) {
+        Optional<ResponseEntity<SimpleMessageDTO>> result = checkIfRegisterDTOvalid(registrationDTO, bindingResult);
         //data is valid
-        return result.orElseGet(() -> ResponseEntity.ok("Valid user data"));
+        return result.orElseGet(() -> ResponseEntity.ok(new SimpleMessageDTO("Valid user data")));
     }
     @PostMapping("/register")
-    public ResponseEntity<String> register(@Valid @RequestBody RegistrationDTO registrationDTO, BindingResult bindingResult) {
+    public ResponseEntity<?> register(@Valid @RequestBody RegistrationDTO registrationDTO, BindingResult bindingResult) {
         log.info(String.valueOf(registrationDTO));
-        Optional<ResponseEntity<String>> result = checkIfRegisterDTOvalid(registrationDTO, bindingResult);
+        Optional<ResponseEntity<SimpleMessageDTO>> result = checkIfRegisterDTOvalid(registrationDTO, bindingResult);
         //data is invalid
         if (result.isPresent()) {
          return result.get();
         }
-        registrationDTO.setPassword(passwordEncoder.encode(registrationDTO.getPassword()));
+        String oldPassword = registrationDTO.getPassword();
+        registrationDTO.setPassword(passwordEncoder.encode(oldPassword));
         userService.registerUser(registrationDTO);
-        return ResponseEntity.ok("Valid user data");
+        return ResponseEntity.ok(login(new LoginDTO(registrationDTO.getUsername(), oldPassword)));
     }
 
-    private Optional<ResponseEntity<String>> checkIfRegisterDTOvalid(RegistrationDTO registrationDTO, BindingResult bindingResult) {
+    private Optional<ResponseEntity<SimpleMessageDTO>> checkIfRegisterDTOvalid(RegistrationDTO registrationDTO, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return Optional.of(ResponseEntity.badRequest().body(bindingResult.getAllErrors().get(0).getDefaultMessage()));
+            return Optional.of(ResponseEntity.badRequest().body(new SimpleMessageDTO(bindingResult.getAllErrors().get(0).getDefaultMessage())));
         }
         if (userService.usernameExists(registrationDTO.getUsername())) {
-            return Optional.of(ResponseEntity.badRequest().body("Username is taken."));
+            return Optional.of(ResponseEntity.badRequest().body(new SimpleMessageDTO("Username is taken.")));
         }
         if (userService.emailExists(registrationDTO.getEmail())) {
-            return Optional.of(ResponseEntity.badRequest().body("Username is taken."));
+            return Optional.of(ResponseEntity.badRequest().body(new SimpleMessageDTO("Email is taken.")));
         }
+
         if (userService.phoneNumberExists(registrationDTO.getPhoneNumber())) {
-            return Optional.of(ResponseEntity.badRequest().body("This phone number is already in use"));
+            return Optional.of(ResponseEntity.badRequest().body(new SimpleMessageDTO("This phone number is already in use")));
         }
         return Optional.empty();
     }
@@ -72,18 +76,17 @@ public class UserController {
         if (bindingResult.hasErrors()) {
             return ResponseEntity.badRequest().build();
         }
-        log.info("cock1");
+        return ResponseEntity.ok(login(loginDTO));
+    }
+
+    private JwtDTO login(LoginDTO loginDTO) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginDTO.getUsername(), loginDTO.getPassword()));
-        log.info("cock2");
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        log.info("cock3");
         String jwt = jwtUtils.generateJwtToken(authentication);
 
-        log.info("cock4");
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        log.info("cock5");
-        return ResponseEntity.ok(new JwtDTO(jwt, userDetails.getUsername()));
+        return new JwtDTO(jwt, userDetails.getUsername());
     }
 
     @GetMapping("/test/all")

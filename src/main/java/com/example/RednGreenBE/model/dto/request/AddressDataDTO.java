@@ -18,7 +18,7 @@ public class AddressDataDTO {
     @NotNull(message = "City cannot be null")
     @Size(min = 1, max = 100)
     private String city;
-    @NotNull(message = "City cannot be null")
+    @NotNull(message = "Address cannot be null")
     @Size(min = 3, max = 100)
     private String address;
 }
