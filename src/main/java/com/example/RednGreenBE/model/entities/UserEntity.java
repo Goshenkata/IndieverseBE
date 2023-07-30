@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Entity
 @Data
@@ -33,6 +34,11 @@ public class UserEntity {
     private BigDecimal money;
     @OneToOne()
     private AddressData address;
+    @OneToMany(mappedBy = "author")
+    private List<Game> publishedGames;
+
+    @ManyToMany(mappedBy = "owners")
+    List<Game> ownedGames;
 
     public BigDecimal getMoney() {
         return money;
