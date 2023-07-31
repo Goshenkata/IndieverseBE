@@ -7,7 +7,7 @@ Spring backend for indieverse, an indie game publishing website created.
 * Spring Data JPA
 * JWT
 ## Running
-    A docker compose is provided, simply run in the project root
+A docker compose is provided, simply run in the project root
 ```
         docker-compose -f docker-compose.yaml up
 ```
