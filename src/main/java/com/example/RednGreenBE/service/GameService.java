@@ -1,6 +1,7 @@
 package com.example.RednGreenBE.service;
 
 import com.example.RednGreenBE.model.dto.request.GamePublishDTO;
+import com.example.RednGreenBE.model.dto.request.SearchDTO;
 import com.example.RednGreenBE.model.dto.response.GameResponseDTO;
 import com.example.RednGreenBE.model.entities.Game;
 import com.example.RednGreenBE.model.entities.UserEntity;
@@ -8,13 +9,19 @@ import com.example.RednGreenBE.repositories.GameRepository;
 import com.example.RednGreenBE.repositories.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import me.xdrop.fuzzywuzzy.FuzzySearch;
+import me.xdrop.fuzzywuzzy.model.BoundExtractedResult;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.beans.Transient;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -119,5 +126,38 @@ public class GameService {
                 .stream()
                 .map(g -> modelMapper.map(g, GameResponseDTO.class))
                 .toList();
+    }
+
+
+    public List<GameResponseDTO> search(@RequestBody SearchDTO searchDTO) {
+        List<GameResponseDTO> list = gameRepository.findAll().stream()
+                .map(game -> modelMapper.map(game, GameResponseDTO.class))
+                .toList();
+        if (!(searchDTO.getName() == null || searchDTO.getName().isBlank())) {
+            list = FuzzySearch
+                    .extractSorted(
+                            searchDTO.getName(),
+                            list,
+                            GameResponseDTO::getName,
+                            50
+                    )
+                    .stream()
+                    .map(BoundExtractedResult::getReferent)
+                    .toList();
+        }
+        if (searchDTO.getMax() != null) {
+            list = list.stream()
+                    .filter(gameResponseDTO -> gameResponseDTO.getPrice().compareTo(searchDTO.getMax()) <= 0)
+                    .toList();
+        }
+        if (searchDTO.getMin() != null) {
+            list = list.stream()
+                    .filter(gameResponseDTO -> gameResponseDTO.getPrice().compareTo(searchDTO.getMin()) >= 0)
+                    .toList();
+        }
+        return list.stream()
+                .limit(20)
+                .toList();
+
     }
 }

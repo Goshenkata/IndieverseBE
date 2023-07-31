@@ -2,6 +2,7 @@ package com.example.RednGreenBE.controller;
 
 
 import com.example.RednGreenBE.model.dto.request.GamePublishDTO;
+import com.example.RednGreenBE.model.dto.request.SearchDTO;
 import com.example.RednGreenBE.model.dto.response.GameResponseDTO;
 import com.example.RednGreenBE.model.dto.response.SimpleMessageDTO;
 import com.example.RednGreenBE.service.GameService;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.security.Principal;
 import java.util.List;
 
@@ -84,5 +86,13 @@ public class GameController  {
     @GetMapping("/user/{username}")
     ResponseEntity<List<GameResponseDTO>> getGamesForUser(@PathVariable String username) {
         return ResponseEntity.ok(gameService.getPublished(username));
+    }
+
+    @PostMapping("/search")
+    public ResponseEntity<?> search(@Valid @RequestBody SearchDTO searchDTO, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            return ResponseEntity.badRequest().build();
+        }
+        return ResponseEntity.ok(gameService.search(searchDTO));
     }
 }
