@@ -2,6 +2,7 @@ package com.example.RednGreenBE.controller;
 
 import com.example.RednGreenBE.model.dto.request.LoginDTO;
 import com.example.RednGreenBE.model.dto.request.RegistrationDTO;
+import com.example.RednGreenBE.model.dto.response.GameResponseDTO;
 import com.example.RednGreenBE.model.dto.response.JwtDTO;
 import com.example.RednGreenBE.model.dto.response.SimpleMessageDTO;
 import com.example.RednGreenBE.service.UserService;
@@ -20,6 +21,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
+import java.security.Principal;
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -40,13 +44,14 @@ public class UserController {
         //data is valid
         return result.orElseGet(() -> ResponseEntity.ok(new SimpleMessageDTO("Valid user data")));
     }
+
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody RegistrationDTO registrationDTO, BindingResult bindingResult) {
         log.info(String.valueOf(registrationDTO));
         Optional<ResponseEntity<SimpleMessageDTO>> result = checkIfRegisterDTOvalid(registrationDTO, bindingResult);
         //data is invalid
         if (result.isPresent()) {
-         return result.get();
+            return result.get();
         }
         String oldPassword = registrationDTO.getPassword();
         registrationDTO.setPassword(passwordEncoder.encode(oldPassword));
@@ -98,5 +103,21 @@ public class UserController {
     public String userAccess() {
         return "User Content.";
     }
+
+    @GetMapping("/balance")
+    public ResponseEntity<SimpleMessageDTO> getBalance(Principal principal) {
+        return ResponseEntity.ok(new SimpleMessageDTO(userService.getBalance(principal.getName())));
+    }
+
+    @PostMapping("/deposit")
+    public ResponseEntity<SimpleMessageDTO> deposit(@RequestParam BigDecimal money, Principal principal) {
+        log.info(String.valueOf(money));
+        log.info(principal.getName());
+        if (userService.deposit(money, principal.getName())) {
+            return ResponseEntity.ok(new SimpleMessageDTO("Deposit successful"));
+        }
+        return ResponseEntity.badRequest().body(new SimpleMessageDTO("Something went wrong depositing money into your account"));
+    }
+
 
 }

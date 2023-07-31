@@ -9,7 +9,6 @@ import com.example.RednGreenBE.repositories.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -59,17 +58,18 @@ public class GameService {
 
     @Transactional
     public boolean buyGame(Long id, String name) {
-        Optional<Game> gameById = gameRepository.findById(id);
-        Optional<UserEntity> byUsername = userRepository.findByUsername(name);
-        if (gameById.isEmpty()) return false;
-        if (byUsername.isEmpty()) return false;
-        Game game = gameById.get();
-        UserEntity userEntity = byUsername.get();
+        if (!hasEnoughMoney(id, name)) {
+            return false;
+        }
+        Game game = gameRepository.findById(id).get();
+        UserEntity userEntity = userRepository.findByUsername(name).get();
 
         if (game.getOwners().contains(userEntity)) return false;
         if (game.getAuthor().getUsername().equals(name)) return false;
 
         game.getOwners().add(userEntity);
+        userEntity.setMoney(userEntity.getMoney().subtract(game.getPrice()));
+        userRepository.save(userEntity);
         gameRepository.save(game);
         return true;
     }
@@ -91,11 +91,33 @@ public class GameService {
     public Boolean ownsGame(Long id, String name) {
         Optional<Game> byId = gameRepository.findById(id);
         Optional<UserEntity> byUsername = userRepository.findByUsername(name);
-        if (byId.isEmpty()) return  false;
-        if (byUsername.isEmpty()) return  false;
+        if (byId.isEmpty()) return false;
+        if (byUsername.isEmpty()) return false;
         Game game = byId.get();
         UserEntity userEntity = byUsername.get();
         return game.getOwners().contains(userEntity);
 
+    }
+
+    public boolean gameExists(String name) {
+        return gameRepository.existsByName(name);
+    }
+
+    public boolean hasEnoughMoney(Long id, String name) {
+        Optional<Game> byId = gameRepository.findById(id);
+        Optional<UserEntity> byUsername = userRepository.findByUsername(name);
+        if (byId.isEmpty()) return false;
+        if (byUsername.isEmpty()) return false;
+        Game game = byId.get();
+        UserEntity userEntity = byUsername.get();
+        return userEntity.getMoney().compareTo(game.getPrice()) >= 0;
+    }
+
+    public List<GameResponseDTO> getGames(String name) {
+        UserEntity userEntity = userRepository.findByUsername(name).get();
+        return userEntity.getOwnedGames()
+                .stream()
+                .map(g -> modelMapper.map(g, GameResponseDTO.class))
+                .toList();
     }
 }

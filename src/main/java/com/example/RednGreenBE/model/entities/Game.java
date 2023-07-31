@@ -20,12 +20,13 @@ public class Game {
     private Long id;
     @Column(nullable = false, unique = true)
     private String name;
-    @Column(nullable = false, columnDefinition = "LONGTEXT")
+    @Column(columnDefinition = "LONGTEXT")
     private String imageUrl;
     @Column(nullable = false, columnDefinition = "LONGTEXT")
     private String description;
     @Column(nullable = false)
     private BigDecimal price;
+
     @ManyToOne
     private UserEntity author;
 

@@ -12,5 +12,6 @@ import java.util.Optional;
 public interface GameRepository extends JpaRepository<Game, Long> {
     @Query("SELECT g FROM Game g LEFT JOIN g.owners o GROUP BY g.id ORDER BY COUNT(o) DESC")
     List<Game> findGamesWithMostOwners();
+    boolean existsByName(String name);
 
 }

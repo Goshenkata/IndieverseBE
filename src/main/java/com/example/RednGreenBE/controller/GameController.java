@@ -27,6 +27,9 @@ public class GameController  {
             return ResponseEntity.badRequest().body(
                     new SimpleMessageDTO(bindingResult.getAllErrors().get(0).getDefaultMessage()));
         }
+        if (gameService.gameExists(gameDTO.getName())) {
+            return ResponseEntity.badRequest().body(new SimpleMessageDTO("Game already exists"));
+        }
         if(gameService.publishGame(gameDTO, principal.getName())) {
             return ResponseEntity.ok(new SimpleMessageDTO("Game created successfully"));
         }
@@ -50,6 +53,9 @@ public class GameController  {
 
     @PostMapping("/buy/{id}")
     private ResponseEntity<SimpleMessageDTO> buyGame(@PathVariable Long id, Principal principal) {
+        if (!gameService.hasEnoughMoney(id, principal.getName())) {
+            return ResponseEntity.badRequest().body(new SimpleMessageDTO("Not enough money!"));
+        }
         if (gameService.buyGame(id, principal.getName())) {
             return ResponseEntity.ok(new SimpleMessageDTO("Game bought succesfully"));
         } else {
@@ -68,5 +74,10 @@ public class GameController  {
     @GetMapping("/owns/{id}")
     ResponseEntity<Boolean> ownsGame(@PathVariable Long id, Principal principal) {
         return ResponseEntity.ok(gameService.ownsGame(id, principal.getName()));
+    }
+
+    @GetMapping("/mygames")
+    ResponseEntity<List<GameResponseDTO>> mygames(Principal principal) {
+        return ResponseEntity.ok(gameService.getGames(principal.getName()));
     }
 }
