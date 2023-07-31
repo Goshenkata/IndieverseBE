@@ -80,4 +80,9 @@ public class GameController  {
     ResponseEntity<List<GameResponseDTO>> mygames(Principal principal) {
         return ResponseEntity.ok(gameService.getGames(principal.getName()));
     }
+
+    @GetMapping("/user/{username}")
+    ResponseEntity<List<GameResponseDTO>> getGamesForUser(@PathVariable String username) {
+        return ResponseEntity.ok(gameService.getPublished(username));
+    }
 }
