@@ -1,4 +1,4 @@
-#Indiverse
+# Indiverse
 Spring backend for indieverse, an indie game publishing website created.
 ## Tech stack
 * Spring Boot MVC
